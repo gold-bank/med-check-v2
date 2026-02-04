@@ -1,0 +1,3 @@
+# Database Configuration
+# - 현재는 localStorage 기반
+# - 추후 필요시 Supabase, PlanetScale 등 연동 가능
