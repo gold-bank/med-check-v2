@@ -318,16 +318,14 @@ export default function HomePage() {
               {slotMeds.map((med) => {
                 const isChecked = checkedMeds[med.id]?.checked || false;
 
-                // D3 D-Day 뱃지
-                let dayBadge: string | undefined;
-                if (med.cycleType === 'D3' && med.dDay !== undefined) {
-                  dayBadge = med.dDay === 0 ? 'D-Day' : `D-${med.dDay}`;
+                // D-Day 뱃지 (D3, MTX 모두 dDay 값 사용)
+                let badgeText: string | undefined;
+                if ((med.cycleType === 'D3' || med.cycleType === 'MTX') && med.dDay !== undefined) {
+                  badgeText = med.dDay === 0 ? 'TODAY' : `D-${med.dDay}`;
                 }
 
-                // MTX 월요일 뱃지
-                if (med.cycleType === 'MTX') {
-                  dayBadge = '월요일';
-                }
+                // 주기성 약물 여부 (D3, MTX)
+                const isCycleMed = med.cycleType === 'D3' || med.cycleType === 'MTX';
 
                 return (
                   <MedicineItem
@@ -340,7 +338,8 @@ export default function HomePage() {
                     isActiveToday={med.isActiveToday}
                     isDanger={med.cycleType === 'MTX'}
                     showFolicWarning={med.tuesdayEvening === true && isTodayTuesday()}
-                    dayBadge={dayBadge}
+                    badge={badgeText}
+                    isCycleMed={isCycleMed}
                     onChange={() => handleMedicineToggle(med.id)}
                   />
                 );

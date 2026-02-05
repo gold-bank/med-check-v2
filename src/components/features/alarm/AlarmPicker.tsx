@@ -210,21 +210,20 @@ export function AlarmPicker({
                         <span className="text-[#333] font-bold">[ {localSlots.find(s => s.id === selectedSlotId)?.label} ]</span> 시간 설정
                     </div>
 
-                    <div className="flex justify-center gap-[6px]">
+                    <div className="flex justify-center gap-[10px]">
                         {/* 오전/오후 */}
                         <div className="flex flex-col items-center">
-                            <span className="text-[10px] text-[#888] mb-[3px] font-medium">오전/오후</span>
+                            <span className="text-[11px] text-[#888] mb-[3px] font-medium">오전/오후</span>
                             <Select
                                 value={period}
                                 onValueChange={(v) => handlePickerChange('period', v)}
-                            // disabled 제거: 사용자가 ON/OFF 상관없이 시간 수정 가능하도록 변경 (터치 인식 개선)
                             >
-                                <SelectTrigger className="w-[65px] h-[34px] bg-white border-[#ccc] text-[13px] font-bold text-center justify-center focus:ring-0 focus:ring-offset-0">
+                                <SelectTrigger className="w-[80px] h-[42px] bg-white border-[#ccc] text-[16px] font-bold text-center justify-center focus:ring-0 focus:ring-offset-0">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="z-[100]">
+                                <SelectContent position="popper" side="top" className="max-h-[300px] z-[100]">
                                     {PERIODS.map(p => (
-                                        <SelectItem key={p} value={p} className="justify-center text-center font-bold text-[13px]">{p}</SelectItem>
+                                        <SelectItem key={p} value={p} className="justify-center text-center font-bold text-[16px] py-3">{p}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -232,18 +231,17 @@ export function AlarmPicker({
 
                         {/* 시 */}
                         <div className="flex flex-col items-center">
-                            <span className="text-[10px] text-[#888] mb-[3px] font-medium">시</span>
+                            <span className="text-[11px] text-[#888] mb-[3px] font-medium">시</span>
                             <Select
                                 value={hour.toString()}
                                 onValueChange={(v) => handlePickerChange('hour', v)}
-                            // disabled 제거
                             >
-                                <SelectTrigger className="w-[55px] h-[34px] bg-white border-[#ccc] text-[15px] font-digital font-bold text-center justify-center focus:ring-0 focus:ring-offset-0">
+                                <SelectTrigger className="w-[70px] h-[42px] bg-white border-[#ccc] text-[22px] font-digital font-bold text-center justify-center focus:ring-0 focus:ring-offset-0">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="max-h-[200px] z-[100]">
+                                <SelectContent position="popper" side="top" className="max-h-[300px] z-[100]">
                                     {HOURS.map(h => (
-                                        <SelectItem key={h} value={h.toString()} className="justify-center text-center font-digital font-bold text-[15px]">{h}</SelectItem>
+                                        <SelectItem key={h} value={h.toString()} className="justify-center text-center font-digital font-bold text-[22px] py-2">{h}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -251,20 +249,19 @@ export function AlarmPicker({
 
                         {/* 분 */}
                         <div className="flex flex-col items-center">
-                            <span className="text-[10px] text-[#888] mb-[3px] font-medium">분</span>
+                            <span className="text-[11px] text-[#888] mb-[3px] font-medium">분</span>
                             <Select
                                 value={minute.toString()}
                                 onValueChange={(v) => handlePickerChange('minute', v)}
-                            // disabled 제거
                             >
-                                <SelectTrigger className="w-[55px] h-[34px] bg-white border-[#ccc] text-[15px] font-digital font-bold text-center justify-center focus:ring-0 focus:ring-offset-0">
+                                <SelectTrigger className="w-[70px] h-[42px] bg-white border-[#ccc] text-[22px] font-digital font-bold text-center justify-center focus:ring-0 focus:ring-offset-0">
                                     <SelectValue>
                                         {String(minute).padStart(2, '0')}
                                     </SelectValue>
                                 </SelectTrigger>
-                                <SelectContent className="max-h-[200px] z-[100]">
+                                <SelectContent position="popper" side="top" className="max-h-[300px] z-[100]">
                                     {MINUTES.map(m => (
-                                        <SelectItem key={m} value={m.toString()} className="justify-center text-center font-digital font-bold text-[15px]">
+                                        <SelectItem key={m} value={m.toString()} className="justify-center text-center font-digital font-bold text-[22px] py-2">
                                             {String(m).padStart(2, '0')}
                                         </SelectItem>
                                     ))}
