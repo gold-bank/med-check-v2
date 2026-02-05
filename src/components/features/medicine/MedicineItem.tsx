@@ -74,17 +74,23 @@ export function MedicineItem({
                     // 체크된 상태
                     checked && !disabled && 'checked-opacity bg-zinc-50 border-transparent',
 
-                    // 비활성 상태
-                    disabled && 'bg-zinc-50 border-dashed border-zinc-300 checked-opacity',
+                    // 비활성 상태 (Active logic에 따라 보여주기 여부 결정)
+                    // D3/MTX 등 활성일이 아닌 경우 (isActiveToday === false) -> 그냥 보통 비활성 (흰색 or 투명?)
+                    // 사용자 요구: 일반 약물은 항상 깨끗한 흰색 배경
+                    disabled && 'bg-white border-dashed border-zinc-200 checked-opacity opacity-50',
 
-                    // 활성 상태 (체크 안된 경우만)
+                    // 활성 상태 (체크 안된 경우만, 그리고 오늘이 Active인 경우만)
                     !checked && !disabled && isActiveToday && 'border-[#FFB74D] bg-[#FFFDF7] animate-[pulse-border-subtle_3s_infinite]',
-                    !checked && !disabled && isDanger && 'border-[#ff6b6b] bg-[#fffefe] animate-[pulse-danger-subtle_3s_infinite]',
+                    // MTX (Danger) - isActiveToday 이면서 isDanger 일때만
+                    !checked && !disabled && isActiveToday && isDanger && 'border-[#ff6b6b] bg-[#fffefe] animate-[pulse-danger-subtle_3s_infinite]',
+
+                    // 엽산 경고 - 이것도 특수 케이스, isActiveToday 체크 필요?
+                    // showFolicWarning is separate; if showing warning, highlight it.
                     !checked && !disabled && showFolicWarning && 'border-[#FFB74D] bg-[#FFFDF7] animate-[pulse-border-subtle_3s_infinite]',
 
 
-                    // 기본 테두리
-                    !checked && !disabled && !isActiveToday && !isDanger && !showFolicWarning && 'border-zinc-200',
+                    // 기본 테두리 (활성도 아니고 Danger도 아니고 Folic도 아닌 경우)
+                    !checked && !disabled && (!isActiveToday && !showFolicWarning) && 'border-zinc-200',
                 )}
                 onClick={handleClick}
                 role="checkbox"
@@ -102,13 +108,30 @@ export function MedicineItem({
                 <div
                     className={cn(
                         'w-[18px] h-[18px] rounded-full border-[1.5px] mr-1.5 flex-shrink-0 relative transition-all duration-200',
-                        checked || disabled
-                            ? 'bg-zinc-400 border-zinc-400'
-                            : 'bg-white border-zinc-300',
+                        // 체크되었거나, 비활성화된 경우(보통)
+                        // 하지만 isActiveToday가 false인 특수 약물의 경우 체크표시 숨김 로직 필요
+                        // 규칙: checked 이면 체크표시.
+                        // 규칙: disabled (isActiveToday=false) 이면...
+                        // 사용자 요구: "비타민 D3와 MTX 항목은 활성일(Today)이 아닐 경우, 체크 여부와 상관없이 체크박스 안에 'V' 표시(체크 표시)가 나타나지 않도록"
+
+                        // isActiveToday가 false인 경우 (즉 disabled=true for D3/MTX in page.tsx) -> 회색 원만 표시? no checkmark.
+                        // 일반 약은 disabled가 거의 없음 (항상 Active).
+                        // page.tsx에서 D3/MTX가 아닐 때 disabled 처리를 어떻게 하는지 확인 필요.
+                        // page.tsx: disabled={!med.isActiveToday}
+
+                        // 따라서 disabled === true 이면 (Active가 아님). 이때 체크마크 숨김.
+
+                        (checked && !disabled)
+                            ? 'bg-zinc-400 border-zinc-400' // 체크됨 & 활성
+                            : disabled
+                                ? 'bg-zinc-100 border-zinc-200' // 비활성 (Active 아님) -> 연한 회색 원
+                                : 'bg-white border-zinc-300',   // 체크안됨 & 활성 -> 빈 원
                     )}
                 >
                     {/* 체크마크 */}
-                    {(checked || disabled) && (
+                    {/* checked이면서 disabled가 아니어야 함. 혹은 disabled라도 보여줬던 기존 로직 변경 */}
+                    {/* 사용자 요청: 활성일이 아닐 경우(disabled) 체크표시 X */}
+                    {(checked && !disabled) && (
                         <svg
                             className="absolute inset-0 w-full h-full p-0.5 text-white"
                             viewBox="0 0 24 24"
@@ -127,7 +150,8 @@ export function MedicineItem({
                     <span
                         className={cn(
                             'font-bold text-sm text-zinc-800',
-                            (checked || disabled) && 'checked-text',
+                            (checked && !disabled) && 'checked-text',
+                            disabled && 'text-zinc-400' // 비활성 텍스트 연하게
                         )}
                     >
                         {name}
@@ -138,7 +162,8 @@ export function MedicineItem({
                         <span
                             className={cn(
                                 'text-xs text-zinc-500',
-                                (checked || disabled) && 'checked-text',
+                                (checked && !disabled) && 'checked-text',
+                                disabled && 'text-zinc-300'
                             )}
                         >
                             {dose}

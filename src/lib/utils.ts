@@ -120,6 +120,18 @@ export function getD3DDay(
 }
 
 /**
+ * MTX 다음 복용일(월요일)까지 D-Day 계산
+ */
+export function getMTXDDay(targetDayOfWeek: number = 1, targetDate: Date = new Date()): number {
+  const currentDay = targetDate.getDay();
+  let diff = targetDayOfWeek - currentDay;
+  if (diff < 0) {
+    diff += 7;
+  }
+  return diff; // 0이면 당일, 1이면 내일(D-1) ...
+}
+
+/**
  * 약이 오늘 활성화되는지 계산
  * cycleType, targetDayOfWeek, tuesdayEvening 등을 고려
  */
@@ -159,7 +171,8 @@ export function isMedicineActiveToday(
   // MTX 특정 요일 약
   if (cycleType === 'MTX' && targetDayOfWeek !== null && targetDayOfWeek !== undefined) {
     const isActive = isMTXActiveToday(targetDayOfWeek, targetDate);
-    return { isActive, slot };
+    const dDay = getMTXDDay(targetDayOfWeek, targetDate);
+    return { isActive, slot, dDay };
   }
 
   // 기본적으로 활성화

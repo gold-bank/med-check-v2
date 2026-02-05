@@ -169,31 +169,31 @@ export function AlarmPicker({
                     </button>
                 </div>
 
-                {/* 슬롯 리스트 */}
-                <div className="p-[8px_12px] max-h-[40vh] overflow-y-auto">
+                {/* 슬롯 리스트 - 컴팩트 레이아웃 */}
+                <div className="p-[8px_12px] max-h-[50vh] overflow-y-auto">
                     {localSlots.map((slot) => (
                         <div
                             key={slot.id}
                             className={cn(
-                                "flex items-center p-[10px_12px] rounded-[8px] cursor-pointer transition-colors border border-transparent mb-1 last:mb-0",
+                                "flex items-center p-[8px_10px] rounded-[8px] cursor-pointer transition-colors border border-transparent mb-[2px] last:mb-0",
                                 selectedSlotId === slot.id
                                     ? "bg-[#f0f0f0] border-[#333]"
                                     : "hover:bg-[#f5f5f5]"
                             )}
                             onClick={() => setSelectedSlotId(slot.id)}
                         >
-                            <span className="flex-1 text-[14px] font-[500] text-[#222]">{slot.label}</span>
+                            <span className="flex-1 text-[13px] font-[500] text-[#222]">{slot.label}</span>
                             <span className={cn(
-                                "font-digital text-[16px] tracking-[1px] font-bold italic mr-[10px] tabular-nums",
+                                "font-digital text-[15px] tracking-[1px] font-bold italic mr-[8px] tabular-nums",
                                 slot.isOn ? "text-[#555]" : "text-[#555] opacity-40"
                             )} style={{ fontFamily: "'DSEG7-Classic', monospace" }}>
                                 {slot.time}
                             </span>
                             <button
                                 className={cn(
-                                    "text-[13px] font-[700] px-[8px] py-[3px] rounded-[12px] min-w-[38px]",
+                                    "text-[12px] font-[700] px-[8px] py-[3px] rounded-[12px] min-w-[38px] transition-colors",
                                     slot.isOn
-                                        ? "bg-[#333] text-white"
+                                        ? "bg-[#1976D2] text-white" // ON Color: Blue
                                         : "bg-[#e0e0e0] text-[#999]"
                                 )}
                                 onClick={(e) => handleToggle(e, slot.id)}
@@ -204,27 +204,27 @@ export function AlarmPicker({
                     ))}
                 </div>
 
-                {/* Picker Area */}
-                <div className="border-t border-[#e5e5e5] bg-[#fafafa] p-[16px]">
-                    <div className="mb-[12px] text-center text-[13px] text-[#555] font-medium">
+                {/* Picker Area - 이벤트 전파/Z-index 문제 해결을 위해 relative/z-index 명시 */}
+                <div className="border-t border-[#e5e5e5] bg-[#fafafa] p-[12px] relative z-50">
+                    <div className="mb-[10px] text-center text-[13px] text-[#555] font-medium">
                         <span className="text-[#333] font-bold">[ {localSlots.find(s => s.id === selectedSlotId)?.label} ]</span> 시간 설정
                     </div>
 
-                    <div className="flex justify-center gap-[8px]">
+                    <div className="flex justify-center gap-[6px]">
                         {/* 오전/오후 */}
                         <div className="flex flex-col items-center">
-                            <span className="text-[11px] text-[#888] mb-[4px] font-medium">오전/오후</span>
+                            <span className="text-[10px] text-[#888] mb-[3px] font-medium">오전/오후</span>
                             <Select
                                 value={period}
                                 onValueChange={(v) => handlePickerChange('period', v)}
-                                disabled={!localSlots.find(s => s.id === selectedSlotId)?.isOn}
+                            // disabled 제거: 사용자가 ON/OFF 상관없이 시간 수정 가능하도록 변경 (터치 인식 개선)
                             >
-                                <SelectTrigger className="w-[70px] h-[36px] bg-white border-[#ccc] text-[14px] font-bold text-center justify-center focus:ring-0 focus:ring-offset-0">
+                                <SelectTrigger className="w-[65px] h-[34px] bg-white border-[#ccc] text-[13px] font-bold text-center justify-center focus:ring-0 focus:ring-offset-0">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="z-[100]">
                                     {PERIODS.map(p => (
-                                        <SelectItem key={p} value={p} className="justify-center text-center font-bold text-[14px]">{p}</SelectItem>
+                                        <SelectItem key={p} value={p} className="justify-center text-center font-bold text-[13px]">{p}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -232,18 +232,18 @@ export function AlarmPicker({
 
                         {/* 시 */}
                         <div className="flex flex-col items-center">
-                            <span className="text-[11px] text-[#888] mb-[4px] font-medium">시</span>
+                            <span className="text-[10px] text-[#888] mb-[3px] font-medium">시</span>
                             <Select
                                 value={hour.toString()}
                                 onValueChange={(v) => handlePickerChange('hour', v)}
-                                disabled={!localSlots.find(s => s.id === selectedSlotId)?.isOn}
+                            // disabled 제거
                             >
-                                <SelectTrigger className="w-[60px] h-[36px] bg-white border-[#ccc] text-[16px] font-digital font-bold text-center justify-center focus:ring-0 focus:ring-offset-0">
+                                <SelectTrigger className="w-[55px] h-[34px] bg-white border-[#ccc] text-[15px] font-digital font-bold text-center justify-center focus:ring-0 focus:ring-offset-0">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="max-h-[200px]">
+                                <SelectContent className="max-h-[200px] z-[100]">
                                     {HOURS.map(h => (
-                                        <SelectItem key={h} value={h.toString()} className="justify-center text-center font-digital font-bold text-[16px]">{h}</SelectItem>
+                                        <SelectItem key={h} value={h.toString()} className="justify-center text-center font-digital font-bold text-[15px]">{h}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -251,20 +251,20 @@ export function AlarmPicker({
 
                         {/* 분 */}
                         <div className="flex flex-col items-center">
-                            <span className="text-[11px] text-[#888] mb-[4px] font-medium">분</span>
+                            <span className="text-[10px] text-[#888] mb-[3px] font-medium">분</span>
                             <Select
                                 value={minute.toString()}
                                 onValueChange={(v) => handlePickerChange('minute', v)}
-                                disabled={!localSlots.find(s => s.id === selectedSlotId)?.isOn}
+                            // disabled 제거
                             >
-                                <SelectTrigger className="w-[60px] h-[36px] bg-white border-[#ccc] text-[16px] font-digital font-bold text-center justify-center focus:ring-0 focus:ring-offset-0">
+                                <SelectTrigger className="w-[55px] h-[34px] bg-white border-[#ccc] text-[15px] font-digital font-bold text-center justify-center focus:ring-0 focus:ring-offset-0">
                                     <SelectValue>
                                         {String(minute).padStart(2, '0')}
                                     </SelectValue>
                                 </SelectTrigger>
-                                <SelectContent className="max-h-[200px]">
+                                <SelectContent className="max-h-[200px] z-[100]">
                                     {MINUTES.map(m => (
-                                        <SelectItem key={m} value={m.toString()} className="justify-center text-center font-digital font-bold text-[16px]">
+                                        <SelectItem key={m} value={m.toString()} className="justify-center text-center font-digital font-bold text-[15px]">
                                             {String(m).padStart(2, '0')}
                                         </SelectItem>
                                     ))}
