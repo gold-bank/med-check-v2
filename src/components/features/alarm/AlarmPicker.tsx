@@ -14,6 +14,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+
 import { cn } from '@/lib/utils';
 import type { TimeSlot } from '@/lib/db/schema';
 
