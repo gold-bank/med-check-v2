@@ -78,9 +78,10 @@ export function MedicineItem({
                     disabled && 'bg-zinc-50 border-dashed border-zinc-300 checked-opacity',
 
                     // 활성 상태 (체크 안된 경우만)
-                    !checked && !disabled && isActiveToday && 'border-active-orange animate-pulse-border',
-                    !checked && !disabled && isDanger && 'border-warning-red animate-pulse-danger',
-                    !checked && !disabled && showFolicWarning && 'border-active-orange animate-pulse-border',
+                    !checked && !disabled && isActiveToday && 'border-[#FFB74D] bg-[#FFFDF7] animate-[pulse-border-subtle_3s_infinite]',
+                    !checked && !disabled && isDanger && 'border-[#ff6b6b] bg-[#fffefe] animate-[pulse-danger-subtle_3s_infinite]',
+                    !checked && !disabled && showFolicWarning && 'border-[#FFB74D] bg-[#FFFDF7] animate-[pulse-border-subtle_3s_infinite]',
+
 
                     // 기본 테두리
                     !checked && !disabled && !isActiveToday && !isDanger && !showFolicWarning && 'border-zinc-200',

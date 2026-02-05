@@ -6,19 +6,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 import admin from 'firebase-admin';
 
-// Firebase Admin 초기화
-if (!admin.apps.length) {
-    try {
-        admin.initializeApp({
-            credential: admin.credential.cert({
-                projectId: process.env.FIREBASE_PROJECT_ID,
-                clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-                privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-            }),
+// Helper to mask secrets for logging
+const mask = (str: string | undefined) => str ? `${str.slice(0, 5)}...` : 'undefined';
+
+function initFirebase() {
+    if (!admin.apps.length) {
+        console.log('[API] Environment Check:', {
+            projectId: process.env.FIREBASE_PROJECT_ID,
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+            privateKeyExists: !!process.env.FIREBASE_PRIVATE_KEY
         });
-        console.log('[Firebase Admin] Initialized');
-    } catch (error) {
-        console.error('[Firebase Admin] Init failed:', error);
+
+        try {
+            const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+            if (!privateKey) throw new Error('FIREBASE_PRIVATE_KEY is missing');
+
+            admin.initializeApp({
+                credential: admin.credential.cert({
+                    projectId: process.env.FIREBASE_PROJECT_ID,
+                    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+                    privateKey: privateKey,
+                }),
+            });
+            console.log('[Firebase Admin] Initialized successfully');
+        } catch (error) {
+            console.error('[Firebase Admin] Initialization failed:', error);
+            // Re-throw so the API request fails explicitly if init fails
+            throw error;
+        }
     }
 }
 
@@ -26,10 +41,23 @@ export async function POST(request: NextRequest) {
     console.log('[API] /api/send-notification called');
 
     try {
-        const body = await request.json();
+        // Init Firebase on every request to be safe (it checks apps.length inside)
+        initFirebase();
+
+        let body;
+        try {
+            body = await request.json();
+        } catch (e) {
+            console.error('[API] Failed to parse JSON body', e);
+            return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+        }
+
         const { token, heading, content } = body;
 
+        console.log('[API] Payload:', { token: mask(token), heading, content });
+
         if (!token) {
+            console.error('[API] Missing FCM token');
             return NextResponse.json(
                 { error: 'Missing FCM token' },
                 { status: 400 }
@@ -55,16 +83,21 @@ export async function POST(request: NextRequest) {
             },
         };
 
-        console.log('[FCM] Sending notification...');
+        console.log('[FCM] Sending message to Firebase...');
         const response = await admin.messaging().send(message);
-        console.log('[FCM] Sent successfully:', response);
+        console.log('[FCM] Sent successfully, ID:', response);
 
         return NextResponse.json({ success: true, messageId: response });
-    } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error('[FCM] Send failed:', errorMessage);
+    } catch (error: any) {
+        console.error('[API] Critical Error:', error);
+
+        // Detailed error for debugging (remove stack in real prod if sensitive, but good for now)
         return NextResponse.json(
-            { error: errorMessage },
+            {
+                error: error.message || 'Internal Server Error',
+                stack: error.stack,
+                code: error.code || 'UNKNOWN_ERROR'
+            },
             { status: 500 }
         );
     }
