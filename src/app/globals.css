@@ -172,6 +172,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
     font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
@@ -185,9 +186,11 @@
   0% {
     box-shadow: 0 0 0 0 rgba(255, 183, 77, 0.2);
   }
+
   70% {
     box-shadow: 0 0 0 5px rgba(255, 183, 77, 0);
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba(255, 183, 77, 0);
   }
@@ -197,9 +200,11 @@
   0% {
     box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.2);
   }
+
   70% {
     box-shadow: 0 0 0 5px rgba(255, 107, 107, 0);
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
   }
@@ -210,6 +215,7 @@
     opacity: 0;
     transform: translateX(-5px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -224,6 +230,7 @@
 
 /* ===== Utility Classes ===== */
 @layer utilities {
+
   /* 레트로 디지털 시계 폰트 */
   .font-digital {
     font-family: 'DSEG7-Classic', monospace !important;
@@ -232,28 +239,56 @@
   }
 
   /* 시간대 배경색 */
-  .bg-dawn { background-color: var(--color-dawn); }
-  .bg-morning { background-color: var(--color-morning); }
-  .bg-noon { background-color: var(--color-noon); }
-  .bg-snack { background-color: var(--color-snack); }
-  .bg-evening { background-color: var(--color-evening); }
-  .bg-night { background-color: var(--color-night); }
+  .bg-dawn {
+    background-color: var(--color-dawn);
+  }
+
+  .bg-morning {
+    background-color: var(--color-morning);
+  }
+
+  .bg-noon {
+    background-color: var(--color-noon);
+  }
+
+  .bg-snack {
+    background-color: var(--color-snack);
+  }
+
+  .bg-evening {
+    background-color: var(--color-evening);
+  }
+
+  .bg-night {
+    background-color: var(--color-night);
+  }
 
   /* 텍스트 색상 */
-  .text-retro-blue { color: var(--color-retro-blue); }
-  .text-warning-red { color: var(--color-warning-red); }
-  .text-checked { color: var(--color-checked-text); }
+  .text-retro-blue {
+    color: var(--color-retro-blue);
+  }
+
+  .text-warning-red {
+    color: var(--color-warning-red);
+  }
+
+  .text-checked {
+    color: var(--color-checked-text);
+  }
 
   /* 애니메이션 클래스 */
   .animate-pulse-border {
     animation: pulse-border-subtle 3s infinite;
   }
+
   .animate-pulse-danger {
     animation: pulse-danger-subtle 3s infinite;
   }
+
   .animate-fade-in {
     animation: fadeIn 0.3s ease-in-out;
   }
+
   .animate-spin-slow {
     animation: spin 0.6s linear infinite;
   }
@@ -263,6 +298,7 @@
     border-color: var(--color-active-orange);
     background-color: var(--color-highlight-bg);
   }
+
   .border-warning-red {
     border-color: var(--color-warning-red);
     background-color: #fffefe;
@@ -273,10 +309,12 @@
     background-color: var(--badge-gray);
     color: var(--badge-text);
   }
+
   .badge-active {
     background-color: var(--color-active-orange);
     color: white;
   }
+
   .badge-danger {
     background-color: var(--color-warning-red);
     color: white;
@@ -286,6 +324,7 @@
   .checked-opacity {
     opacity: var(--checked-opacity);
   }
+
   .checked-text {
     text-decoration: line-through;
     color: var(--checked-text);
@@ -305,7 +344,158 @@ span {
   -webkit-tap-highlight-color: transparent;
 }
 
-html, body {
+html,
+body {
   overflow-x: hidden;
   max-width: 100vw;
+}
+
+/* ===== v1 MedicineItem Styles ===== */
+
+/* 약 아이템 라벨 (v1: .med-item-label) */
+.med-item-label {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px 8px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  position: relative;
+  max-width: 100%;
+  overflow: hidden;
+  transition: all 0.2s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.med-item-label.checked {
+  background-color: #f9f9f9;
+  opacity: var(--checked-opacity);
+}
+
+.med-item-label.checked .med-name {
+  color: var(--checked-text);
+  text-decoration: line-through;
+}
+
+.med-item-label.checked .med-dose {
+  color: #ccc;
+}
+
+/* 체크박스 원 (v1: .check-circle, 18px × 18px) */
+.check-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid #aaa;
+  margin-right: 8px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  transition: all 0.15s;
+  font-size: 11px;
+  font-weight: bold;
+  color: transparent;
+}
+
+.med-item-label.checked .check-circle {
+  background-color: #9e9e9e;
+  border-color: #9e9e9e;
+  color: #fff;
+}
+
+.med-item-label.checked .check-circle::after {
+  content: 'V';
+}
+
+/* 비활성 (disabled) 상태에서는 체크마크 숨김 */
+.med-disabled .check-circle::after {
+  display: none !important;
+}
+
+.med-disabled .check-circle {
+  background-color: #f5f5f5;
+  border-color: #ddd;
+}
+
+/* 텍스트 래퍼 */
+.med-text-wrapper {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+}
+
+/* 약 이름 (v1: .med-name, 14px) */
+.med-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+}
+
+/* 용량 (v1: .med-dose, 12px) */
+.med-dose {
+  font-size: 12px;
+  font-weight: 400;
+  color: #888;
+  white-space: nowrap;
+}
+
+/* 뱃지 공통 스타일 (v1: .med-badge) */
+.med-badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 4px;
+  font-weight: 800;
+  vertical-align: middle;
+  transition: background-color 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+/* 화요일 엽산 경고 (v1: .folic-warning) */
+.folic-warning {
+  font-size: 12px;
+  color: #777;
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+/* 비활성 상태 (v1: .med-disabled) */
+.med-disabled {
+  opacity: 0.5;
+}
+
+.med-disabled .med-item-label {
+  border-style: dashed;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* D3 활성 상태 (v1: .med-active-today) */
+.med-active-today .med-item-label {
+  background-color: #FFFDF7;
+  border-color: #FFB74D;
+  animation: pulse-border-subtle 3s infinite;
+}
+
+/* MTX 활성 상태 (v1: .med-active-danger) */
+.med-active-danger .med-item-label {
+  background-color: #fffefe;
+  border-color: #ff6b6b;
+  animation: pulse-danger-subtle 3s infinite;
+}
+
+/* 화요일 엽산 활성 (v1: .med-folic-active) */
+.med-folic-active .med-item-label {
+  background-color: #fff0f0;
+  border-color: #ffcbcb;
 }

@@ -8,13 +8,13 @@ interface MedicineItemProps {
     dose: string;
     checked: boolean;
     disabled?: boolean;
-    isActiveToday?: boolean;
-    isDanger?: boolean;
-    badge?: string;
-    dayBadge?: string;
+    isActiveToday?: boolean;  // D3/MTX 활성일
+    isDanger?: boolean;       // MTX 활성일
+    badge?: string;           // D-Day 뱃지 (TODAY, D-1, D-2 등)
+    dayBadge?: string;        // 요일 뱃지
     showFolicWarning?: boolean;
     onChange: (id: string, checked: boolean) => void;
-    isCycleMed?: boolean;
+    isCycleMed?: boolean;     // D3/MTX 같은 주기성 약물
 }
 
 export function MedicineItem({
@@ -37,131 +37,81 @@ export function MedicineItem({
         }
     };
 
-    // 뱃지 색상 결정
+    // 뱃지가 회색이어야 하는 조건 (v1 로직)
+    const shouldBadgeBeGray = disabled || checked;
+
+    // D-Day 뱃지 스타일 (v1 로직)
     const getDDayBadgeClass = () => {
-        if (isActiveToday) return 'badge-active';
-        // 비활성일 때도 뱃지가 있다면 (D-Day 등) 표시는 하되 회색으로
-        return 'badge-gray';
+        if (shouldBadgeBeGray) return 'bg-[#e0e0e0] text-[#777]';
+        if (isDanger) return 'bg-[#ff6b6b] text-white';
+        if (isActiveToday) return 'bg-[#FFB74D] text-white';
+        return 'bg-[#e0e0e0] text-[#777]';
     };
 
-    // 체크박스 스타일 (v1 스타일: 체크시 회색/진회색 통일)
-    // 조건 1: 체크됨 & Active(Not disabled) => 회색/진회색 배경
-    // 조건 2: Disabled (Inactive) => 회색 원, 체크마크 없음
-    // 조건 3: Active & Not Checked => 흰색 배경, 회색 테두리
-    const checkboxClass = (checked && !disabled)
-        ? 'bg-zinc-500 border-zinc-500'
-        : disabled
-            ? 'bg-zinc-100 border-zinc-200'
-            : 'bg-white border-zinc-300';
+    // 요일 뱃지 스타일 (v1 로직)
+    const getDayBadgeClass = () => {
+        if (shouldBadgeBeGray) return 'bg-[#e0e0e0] text-[#777]';
+        if (isDanger) return 'bg-[#ff6b6b] text-white';
+        return 'bg-[#e0e0e0] text-[#777]';
+    };
 
-    // 컨테이너 스타일
-    // 조건 1: (D3나 MTX)이고 오늘이 Active 날이고, 체크 안됐을 때 => 강조 색상
-    // 조건 2: 그 외(일반 약, 혹은 체크된 상태, 혹은 Inactive) => 흰색 배경
-    const isActiveHighlight = isCycleMed && isActiveToday && !checked;
+    // 래퍼 클래스 (v1 로직: 오직 D3/MTX/화요일엽산만 강조)
+    const wrapperClass = cn(
+        disabled && 'med-disabled',
+        !disabled && !checked && isActiveToday && isCycleMed && !isDanger && 'med-active-today',
+        !disabled && !checked && isDanger && 'med-active-danger',
+        !disabled && !checked && showFolicWarning && !isCycleMed && 'med-folic-active'
+    );
 
-    const containerClass = cn(
-        'medicine-item flex items-center p-[10px_12px] rounded-[10px] border transition-all duration-200 mb-[8px] last:mb-0 relative select-none touch-manipulation',
-        // 기본값: 흰색 배경, 투명 테두리, 그림자
-        'bg-white border-transparent shadow-[0_1px_3px_rgba(0,0,0,0.05)]',
-
-        // Active Highlight (D3/MTX Only)
-        isActiveHighlight && 'med-active-today', // globals.css에 정의된 클래스 사용 (단, 색상은 아래에서 오버라이드 됨을 유의, 혹은 util class 직접 사용)
-        isActiveHighlight && !isDanger && 'bg-[#FFFDF7] border-[#FFB74D]', // D3 style
-        isActiveHighlight && isDanger && 'bg-[#fffefe] border-[#ff6b6b]',   // MTX style (v1 danger)
-
-        // Checked 상태
-        checked && 'opacity-60 bg-zinc-50 border-zinc-100 shadow-none',
-
-        // Disabled (Inactive day)
-        disabled && 'opacity-50 bg-white border-dashed border-zinc-200 shadow-none pointer-events-none'
+    // 라벨 클래스 (v1: .med-item-label)
+    const labelClass = cn(
+        'med-item-label',
+        checked && !disabled && 'checked'
     );
 
     return (
-        <div
-            className={containerClass}
-            onClick={handleClick}
-            role="checkbox"
-            aria-checked={checked}
-            aria-disabled={disabled}
-            tabIndex={disabled ? -1 : 0}
-            onKeyDown={(e) => {
-                if (!disabled && (e.key === 'Enter' || e.key === ' ')) {
-                    e.preventDefault();
-                    handleClick();
-                }
-            }}
-        >
-            {/* 체크박스 영역 */}
-            <div className={cn(
-                'w-[22px] h-[22px] rounded-full border-[1.5px] flex items-center justify-center mr-[12px] transition-colors flex-shrink-0',
-                checkboxClass
-            )}>
-                {(checked && !disabled) && (
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="w-[14px] h-[14px] text-white"
-                    >
-                        <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                )}
-            </div>
+        <div className={wrapperClass}>
+            <div
+                className={labelClass}
+                onClick={handleClick}
+                role="checkbox"
+                aria-checked={checked}
+                aria-disabled={disabled}
+                tabIndex={disabled ? -1 : 0}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleClick();
+                    }
+                }}
+            >
+                {/* 체크박스 원 - v1: .check-circle, 18px × 18px */}
+                <div className="check-circle" />
 
-            {/* 텍스트 영역 */}
-            <div className="flex-1 flex flex-col justify-center min-w-0">
-                <div className="flex items-center flex-wrap">
-                    <span className={cn(
-                        "font-[600] text-[15px] text-[#333] leading-tight mr-[6px]",
-                        checked && "line-through text-zinc-400",
-                        disabled && 'text-zinc-400'
-                    )}>
-                        {name}
-                    </span>
+                {/* 텍스트 래퍼 - v1: .med-text-wrapper */}
+                <div className="med-text-wrapper">
+                    {/* 이름 - v1: .med-name, 14px */}
+                    <span className="med-name">{name}</span>
 
-                    {/* D-Day badge (badge prop 사용) */}
+                    {/* 용량 - v1: .med-dose, 12px */}
+                    {dose && <span className="med-dose">{dose}</span>}
+
+                    {/* 화요일 엽산 경고 - v1: .folic-warning */}
+                    {showFolicWarning && (
+                        <span className="folic-warning">★화요일은 저녁 복용★</span>
+                    )}
+
+                    {/* 요일 뱃지 */}
+                    {dayBadge && (
+                        <span className={cn('med-badge', getDayBadgeClass())}>{dayBadge}</span>
+                    )}
+
+                    {/* D-Day 뱃지 */}
                     {badge && (
-                        <span className={cn(
-                            "text-[10px] font-bold px-[5px] py-[2px] rounded-[4px] tracking-tight",
-                            getDDayBadgeClass()
-                        )}>
-                            {badge}
-                        </span>
-                    )}
-
-                    {/* 요일 뱃지 (dayBadge) - MTX 등 */}
-                    {dayBadge && !badge && (
-                        <span className={cn(
-                            "text-[10px] font-bold px-[5px] py-[2px] rounded-[4px] tracking-tight",
-                            getDDayBadgeClass()
-                        )}>
-                            {dayBadge}
-                        </span>
+                        <span className={cn('med-badge', getDDayBadgeClass())}>{badge}</span>
                     )}
                 </div>
-                {dose && (
-                    <span className={cn(
-                        "text-[12px] text-[#888] font-[400] mt-[2px]",
-                        checked && "text-zinc-300",
-                        disabled && 'text-zinc-300'
-                    )}>
-                        {dose}
-                    </span>
-                )}
             </div>
-
-            {/* 엽산 주의 경고 (화요일 저녁) */}
-            {showFolicWarning && (
-                <div className="absolute right-[10px] top-1/2 -translate-y-1/2 pointer-events-none">
-                    <span className="text-[11px] font-bold text-[#FF6B6B] bg-[#FFF0F0] px-[6px] py-[3px] rounded-[6px] border border-[#ffcbcb] animate-pulse">
-                        화요일 복용 금지!
-                    </span>
-                </div>
-            )}
         </div>
     );
 }
