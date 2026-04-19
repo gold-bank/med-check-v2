@@ -288,7 +288,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-zinc-50">
       <Header
-        buildDate="2026-04-19T13:50:00+09:00"
+        buildDate={new Date().toISOString()}
         onAlarmClick={handleAlarmClick}
       />
 
