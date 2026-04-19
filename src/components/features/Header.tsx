@@ -27,8 +27,8 @@ export function Header({ buildDate, onReset, onAlarmClick }: HeaderProps) {
 
     // 빌드 날짜 포맷
     const formattedDate = buildDate
-        ? format(new Date(buildDate), 'M월 d일 (EEE)', { locale: ko })
-        : format(new Date(), 'M월 d일 (EEE)', { locale: ko });
+        ? format(new Date(buildDate), 'yy.M.d HH:mm 업데이트', { locale: ko })
+        : null;
 
     const handleReset = async () => {
         if (isResetting) return;
@@ -75,9 +75,11 @@ export function Header({ buildDate, onReset, onAlarmClick }: HeaderProps) {
                 {/* 우측 영역 */}
                 <div className="flex items-center gap-2">
                     {/* 업데이트 날짜 */}
-                    <span className="text-xs text-zinc-400 mr-2">
-                        {formattedDate}
-                    </span>
+                    {formattedDate && (
+                        <span className="text-xs text-zinc-400 mr-2">
+                            {formattedDate}
+                        </span>
+                    )}
 
                     {/* 알람 설정 버튼 */}
                     {onAlarmClick && (

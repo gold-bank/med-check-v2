@@ -24,7 +24,7 @@ import { TIME_SLOTS_CONFIG } from '@/lib/db/seed';
 import type { Medicine, TimeSlot } from '@/lib/db/schema';
 
 // Server Actions
-import { getMedicinesForUser, toggleMedicineLog, getMedicineLogsForDate } from '@/server/actions/medicine';
+import { getMedicinesForUser, toggleMedicineLog, getMedicineLogsForDate, getLastMedicineUpdateTime } from '@/server/actions/medicine';
 import { toggleAlarmWithSchedule, updateAlarmTimeWithSchedule } from '@/server/actions/notification';
 import { getAlarmSettings } from '@/server/actions/alarm';
 
@@ -48,6 +48,7 @@ export default function HomePage() {
   const [medicines, setMedicines] = useState<MedicineWithState[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdateTime, setLastUpdateTime] = useState<string | undefined>(undefined);
   const [isAlarmPickerOpen, setIsAlarmPickerOpen] = useState(false);
   const [isSaving, startSaveTransition] = useTransition();
 
@@ -71,7 +72,11 @@ export default function HomePage() {
       setError(null);
 
       // 1. 약 목록 조회
-      const medicineData = await getMedicinesForUser(GUEST_USER_ID);
+      const [medicineData, lastUpdate] = await Promise.all([
+        getMedicinesForUser(GUEST_USER_ID),
+        getLastMedicineUpdateTime(GUEST_USER_ID),
+      ]);
+      if (lastUpdate) setLastUpdateTime(lastUpdate);
 
       // 2. 오늘 복용 기록 조회
       const today = getTodayString();
@@ -288,7 +293,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-zinc-50">
       <Header
-        buildDate="2026-04-19T13:50:00+09:00"
+        buildDate={lastUpdateTime}
         onAlarmClick={handleAlarmClick}
       />
 
