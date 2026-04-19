@@ -15,27 +15,7 @@
 
 import { db } from '@/lib/db';
 import { medicines, medicineLogs, type Medicine, type NewMedicine, type MedicineLog, type TimeSlot } from '@/lib/db/schema';
-import { eq, and, max } from 'drizzle-orm';
-
-// ===== 마지막 약 수정 시간 조회 =====
-
-/**
- * medicines 테이블에서 가장 최근 updated_at 반환
- * → 헤더의 '업데이트 날짜' 표시에 사용
- */
-export async function getLastMedicineUpdateTime(userId: string): Promise<string | null> {
-    if (!db) return null;
-    try {
-        const result = await db
-            .select({ lastUpdated: max(medicines.updatedAt) })
-            .from(medicines)
-            .where(eq(medicines.userId, userId));
-        const val = result[0]?.lastUpdated;
-        return val ? val.toISOString() : null;
-    } catch {
-        return null;
-    }
-}
+import { eq, and } from 'drizzle-orm';
 
 // ===== 약 조회 =====
 
